@@ -15,16 +15,12 @@
         <KeyFrameSet >
             <KeyAttribute
                 motion:motionTarget="@+id/main_icon"
-                motion:framePosition="30"
-                motion:transitionPathRotate="90" />
-            <KeyAttribute
-                motion:motionTarget="@+id/main_icon"
-                motion:framePosition="60"
-                motion:transitionPathRotate="180" />
+                motion:framePosition="0"
+                motion:transitionPathRotate="0" />
             <KeyAttribute
                 motion:motionTarget="@+id/main_icon"
                 motion:framePosition="100"
-                motion:transitionPathRotate="360" />
+                motion:transitionPathRotate="720" />
         </KeyFrameSet>
     </Transition>
 
