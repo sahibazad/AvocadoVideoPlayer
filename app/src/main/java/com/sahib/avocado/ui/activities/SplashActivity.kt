@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.constraintlayout.motion.widget.MotionLayout
 import com.sahib.avocado.R
+import com.sahib.avocado.utils.startActivityWithFade
 
 class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,8 +22,8 @@ class SplashActivity : AppCompatActivity() {
 
         motionLayout.setTransitionListener(object : MotionLayout.TransitionListener {
             override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
-                val intent: Intent = Intent(this@SplashActivity, LoginActivity::class.java)
-                startActivity(intent)
+                val intent: Intent = Intent(this@SplashActivity, OnboardingActivity::class.java)
+                startActivityWithFade(intent)
             }
 
             override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) { }
