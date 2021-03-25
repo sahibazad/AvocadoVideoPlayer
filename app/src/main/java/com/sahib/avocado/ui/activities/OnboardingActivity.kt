@@ -30,18 +30,12 @@ class OnboardingActivity : AppCompatActivity() {
         if (viewPagerHeader != null) {
             pager.addOnPageChangeListener(viewPagerHeader)
         }
-
-//        val debugMode = if (intent.getBooleanExtra("showPaths", false)) {
-//            MotionLayout.DEBUG_SHOW_PATH
-//        } else {
-//            MotionLayout.DEBUG_SHOW_NONE
-//        }
-//        viewPagerHeader.setDebugMode(debugMode)
     }
 
     fun finishOnboarding() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivityWithFade(intent)
-        TODO(reason = "Implement shared preferences")
+        finish()
+        //TODO Implement shared preferences
     }
 }
