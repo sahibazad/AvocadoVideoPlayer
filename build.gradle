@@ -18,6 +18,14 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven { url "http://jitpack.io/" }
+        maven {
+            url 'https://repo.cloud.accedo.tv/artifactory/accedo-ps-releases-local'
+            credentials {
+                username = "${artifactory_user}"
+                password = "${artifactory_password}"
+            }
+        }
     }
 }
 

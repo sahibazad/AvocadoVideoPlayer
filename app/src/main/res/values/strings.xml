@@ -4,4 +4,8 @@
     <string name="enter_username">Enter username</string>
     <string name="enter_password">Enter password</string>
     <string name="remember_me">Remember me</string>
+    <string name="directories">Directories</string>
+    <string name="items">Items</string>
+    <string name="error_empty_directory">Uh oh, no items here!</string>
+    <string name="videos">Videos</string>
 </resources>

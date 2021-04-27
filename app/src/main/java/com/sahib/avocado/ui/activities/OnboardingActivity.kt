@@ -3,9 +3,12 @@ package com.sahib.avocado.ui.activities
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import androidx.viewpager.widget.ViewPager
+import com.sahib.avocado.Constants
 import com.sahib.avocado.R
 import com.sahib.avocado.adapter.ViewPagerAdapter
+import com.sahib.avocado.app.MyApplication
 import com.sahib.avocado.utils.startActivityWithFade
 import customcomponents.ViewpagerHeader
 
@@ -33,9 +36,11 @@ class OnboardingActivity : AppCompatActivity() {
     }
 
     fun finishOnboarding() {
-        val intent = Intent(this, LoginActivity::class.java)
+        MyApplication.prefHelper.defaultPrefs().edit {
+            putBoolean(Constants.SharedPrefItemNames.isOnboarded.name, true).commit()
+        }
+        val intent = Intent(this, DirectoriesActivity::class.java)
         startActivityWithFade(intent)
         finish()
-        //TODO Implement shared preferences
     }
 }

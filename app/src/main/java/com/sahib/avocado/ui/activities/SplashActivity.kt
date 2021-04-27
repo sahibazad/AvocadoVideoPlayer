@@ -6,7 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.constraintlayout.motion.widget.MotionLayout
+import com.sahib.avocado.Constants
 import com.sahib.avocado.R
+import com.sahib.avocado.app.MyApplication
 import com.sahib.avocado.utils.startActivityWithFade
 
 class SplashActivity : AppCompatActivity() {
@@ -22,7 +24,11 @@ class SplashActivity : AppCompatActivity() {
 
         motionLayout.setTransitionListener(object : MotionLayout.TransitionListener {
             override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
-                val intent: Intent = Intent(this@SplashActivity, OnboardingActivity::class.java)
+                val intent: Intent = if (MyApplication.prefHelper.defaultPrefs().getBoolean(Constants.SharedPrefItemNames.isOnboarded.name, false)) {
+                    Intent(this@SplashActivity, DirectoriesActivity::class.java)
+                } else {
+                    Intent(this@SplashActivity, OnboardingActivity::class.java)
+                }
                 startActivityWithFade(intent)
             }
 

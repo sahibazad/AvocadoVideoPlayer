@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.sahib.avocado">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.STORAGE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
     <application
+        android:name=".app.MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -20,6 +29,14 @@
         <activity android:name=".ui.activities.LoginActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.activities.OnboardingActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ui.activities.DirectoriesActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ui.activities.VideosActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ui.activities.VideoPlayerActivity"
+            android:screenOrientation="landscape"/>
+        <activity android:name=".ui.activities.VideoPlayerVDKActivity"
             android:screenOrientation="portrait"/>
     </application>
 
