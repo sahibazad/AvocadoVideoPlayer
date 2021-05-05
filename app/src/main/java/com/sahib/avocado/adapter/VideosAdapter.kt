@@ -3,7 +3,6 @@ package com.sahib.avocado.adapter
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -14,8 +13,6 @@ import com.sahib.avocado.Constants
 import com.sahib.avocado.R
 import com.sahib.avocado.model.VideoContent
 import com.sahib.avocado.ui.activities.VideoPlayerActivity
-import com.sahib.avocado.ui.activities.VideoPlayerVDKActivity
-import com.sahib.avocado.ui.activities.VideosActivity
 import com.sahib.avocado.utils.inflate
 import com.sahib.avocado.utils.startActivityWithFade
 
@@ -30,18 +27,24 @@ class VideosAdapter(private val context : Context, private val list : ArrayList<
 
     override fun onBindViewHolder(holder: VideosAdapter.ViewHolder, position: Int) {
         val item = list[position]
-        holder.bindVideoFile(item)
+        holder.bindVideoFile(item, position, list)
     }
 
     class ViewHolder(private val context : Context, private val view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
 
         private var videoFile : VideoContent? = null
+        private var position: Int? = null
+        private var list: ArrayList<VideoContent>? = null  // TODO use these to create a playlist and send a position to enab;e forward and next buttons
 
         init {
             view.setOnClickListener(this)
         }
 
-        fun bindVideoFile(videoFile: VideoContent) {
+        fun bindVideoFile(
+            videoFile: VideoContent,
+            position: Int,
+            list: ArrayList<VideoContent>
+        ) {
             this.videoFile = videoFile
             Glide.with(context).load(Uri.parse(videoFile.assetFileStringUri))
                 .centerCrop()

@@ -6,8 +6,10 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
+import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.util.Util
 import com.sahib.avocado.Constants
@@ -52,9 +54,11 @@ class VideoPlayerActivity : AppCompatActivity(){
             simpleExoPlayer?.setMediaItem(mediaItem)
             simpleExoPlayer?.playWhenReady = playWhenReady
             simpleExoPlayer?.seekTo(currentWindow, playbackPosition)
+            simpleExoPlayer?.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
             simpleExoPlayer?.prepare()
 
             playerView.setOnTouchListener(SwipperGestureDetection(this, currentBrightness, videoDuration, simpleExoPlayer))
+            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
         }
     }
 

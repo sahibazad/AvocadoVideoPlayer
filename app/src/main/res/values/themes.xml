@@ -13,6 +13,7 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorSecondary</item>
         <!-- Customize your theme here. -->
         <item name="android:windowAnimationStyle">@style/WindowAnimationStyle</item>
+        <item name="colorBackgroundFloating">@color/translucent_green_1</item>
     </style>
 
     <style name="WindowAnimationStyle">

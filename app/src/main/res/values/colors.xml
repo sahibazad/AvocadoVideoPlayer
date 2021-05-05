@@ -21,4 +21,8 @@
     <color name="dark_gray">#2d3436</color>
     <color name="medium_gray">#636e72</color>
     <color name="light_gray">#dfe6e9</color>
+
+    <color name="translucent_white">#60FFFFFF</color>
+    <color name="translucent_green_1">#CC6E9F5A</color>
+    <color name="translucent_green_2">#CC255A17</color>
 </resources>

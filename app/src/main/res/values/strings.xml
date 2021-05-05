@@ -8,4 +8,5 @@
     <string name="items">Items</string>
     <string name="error_empty_directory">Uh oh, no items here!</string>
     <string name="videos">Videos</string>
+    <string name="description">Description</string>
 </resources>
