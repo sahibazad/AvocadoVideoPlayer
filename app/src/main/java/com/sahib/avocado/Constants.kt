@@ -21,7 +21,9 @@ class Constants {
         folderName,
         videoUri,
         videoName,
-        videoDuration
+        videoDuration,
+        videoList,
+        position
     }
 
 }

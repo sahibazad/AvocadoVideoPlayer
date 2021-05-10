@@ -34,7 +34,7 @@ class VideosAdapter(private val context : Context, private val list : ArrayList<
 
         private var videoFile : VideoContent? = null
         private var position: Int? = null
-        private var list: ArrayList<VideoContent>? = null  // TODO use these to create a playlist and send a position to enab;e forward and next buttons
+        private var list: ArrayList<VideoContent>? = null
 
         init {
             view.setOnClickListener(this)
@@ -46,6 +46,9 @@ class VideosAdapter(private val context : Context, private val list : ArrayList<
             list: ArrayList<VideoContent>
         ) {
             this.videoFile = videoFile
+            this.position = position
+            this.list = list
+
             Glide.with(context).load(Uri.parse(videoFile.assetFileStringUri))
                 .centerCrop()
                 .into(view.findViewById<ImageView>(R.id.image_video))
@@ -56,9 +59,11 @@ class VideosAdapter(private val context : Context, private val list : ArrayList<
             val context = itemView.context
 //            val intent = Intent(context, VideoPlayerVDKActivity::class.java)
             val intent = Intent(context, VideoPlayerActivity::class.java)
-            intent.putExtra(Constants.IntentItems.videoName.name, videoFile?.videoName)
-            intent.putExtra(Constants.IntentItems.videoUri.name, videoFile?.assetFileStringUri)
-            intent.putExtra(Constants.IntentItems.videoDuration.name, videoFile?.videoDuration)
+//            intent.putExtra(Constants.IntentItems.videoName.name, videoFile?.videoName)
+//            intent.putExtra(Constants.IntentItems.videoUri.name, videoFile?.assetFileStringUri)
+//            intent.putExtra(Constants.IntentItems.videoDuration.name, videoFile?.videoDuration)
+            intent.putParcelableArrayListExtra(Constants.IntentItems.videoList.name, list)
+            intent.putExtra(Constants.IntentItems.position.name, position)
             context.startActivityWithFade(intent)
         }
     }

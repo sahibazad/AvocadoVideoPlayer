@@ -1,13 +1,13 @@
 package com.sahib.avocado.ui.activities
 
 import android.annotation.SuppressLint
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player.EventListener
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.PlayerView
@@ -15,18 +15,26 @@ import com.google.android.exoplayer2.util.Util
 import com.sahib.avocado.Constants
 import com.sahib.avocado.R
 import com.sahib.avocado.app.MyApplication
+import com.sahib.avocado.model.VideoContent
 import com.sahib.avocado.utils.swipper.SwipperGestureDetection
-
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 
 class VideoPlayerActivity : AppCompatActivity(){
 
+    private lateinit var swipeGestureDetection: SwipperGestureDetection
     private var playWhenReady = true
-    private var currentWindow = 0
     private var playbackPosition: Long = 0
-    private var videoDuration: Long = 0
     private var currentBrightness: Float = 0.1F
     private lateinit var playerView: PlayerView
-    private var simpleExoPlayer: SimpleExoPlayer? = null
+    private var simpleExoPlayer: SimpleExoPlayer ?= null
+    private var position: Int ?= null
+    private var list: ArrayList<VideoContent> ?= null
+    private var currentVideo: VideoContent ?= null
+    private var playbackProgressObservable: Observable<Long>? =null
+    private var playbackDisposable: Disposable ?= null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,10 +46,25 @@ class VideoPlayerActivity : AppCompatActivity(){
 
     private fun initView() {
         playerView = findViewById(R.id.videoView)
-        currentBrightness =  MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.videoStatus.name).getFloat(Constants.SharedPrefItemNames.brightness.name, this.window.attributes.screenBrightness)
-        playbackPosition =  MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.videoStatus.name).getLong(Constants.SharedPrefItemNames.position.name, 0)
-        videoDuration = intent.getLongExtra(Constants.IntentItems.videoDuration.name, 1000)
+        currentBrightness =  MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.general.name).getFloat(Constants.SharedPrefItemNames.brightness.name, this.window.attributes.screenBrightness)
+
+        list = intent.getParcelableArrayListExtra(Constants.IntentItems.videoList.name)
+        position = intent.getIntExtra(Constants.IntentItems.position.name, 0)
+        currentVideo = list?.get(position!!)
+
+        playbackPosition =  MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.videoStatus.name).getLong(currentVideo?.assetFileStringUri, 0)
+
         setDefaultBrightness()
+        observerProgress()
+    }
+
+    private fun observerProgress() {
+        //RxKotlin to observe progress update
+        playbackDisposable = playbackProgressObservable?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe {
+            if (simpleExoPlayer!!.currentWindowIndex == position) {
+                playbackPosition = it
+            }
+        }
     }
 
     private fun initExoPlayer() {
@@ -49,16 +72,43 @@ class VideoPlayerActivity : AppCompatActivity(){
             simpleExoPlayer = SimpleExoPlayer.Builder(this).build()
             playerView.player = simpleExoPlayer
 
-            val mediaItem: MediaItem =
-                MediaItem.fromUri(Uri.parse(intent.getStringExtra(Constants.IntentItems.videoUri.name)))
-            simpleExoPlayer?.setMediaItem(mediaItem)
+            val mediaItemList : ArrayList<MediaItem> = ArrayList()
+
+            for (videoContent:VideoContent in list!!) {
+                mediaItemList.add(MediaItem.fromUri(videoContent.assetFileStringUri!!))
+            }
+
+            simpleExoPlayer?.setMediaItems(mediaItemList)
             simpleExoPlayer?.playWhenReady = playWhenReady
-            simpleExoPlayer?.seekTo(currentWindow, playbackPosition)
+            simpleExoPlayer?.seekTo(position!!, playbackPosition)
             simpleExoPlayer?.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
             simpleExoPlayer?.prepare()
 
-            playerView.setOnTouchListener(SwipperGestureDetection(this, currentBrightness, videoDuration, simpleExoPlayer))
-            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
+            playerView.controllerAutoShow = true
+            playerView.controllerHideOnTouch = true
+            swipeGestureDetection = SwipperGestureDetection(this, currentBrightness, currentVideo!!.videoDuration, simpleExoPlayer)
+            playerView.setOnTouchListener(swipeGestureDetection)
+            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+
+            //To change current seek position in case the track is changed
+            simpleExoPlayer!!.addListener(object: EventListener {
+                override fun onPositionDiscontinuity(reason: Int) {
+                    val latestWindowIndex: Int = simpleExoPlayer!!.currentWindowIndex
+                    if (latestWindowIndex != position) {
+                        //Save the old tracks playback position
+                        MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.videoStatus.name).edit {
+                            putLong(currentVideo?.assetFileStringUri, playbackPosition).commit()
+                        }
+
+                        //Load the new tracks playback position
+                        position = latestWindowIndex
+                        currentVideo = list?.get(position!!)
+                        swipeGestureDetection.setNewVideoDuration(currentVideo!!.videoDuration)
+                        playbackPosition =  MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.videoStatus.name).getLong(currentVideo?.assetFileStringUri, 0)
+                        simpleExoPlayer!!.seekTo(playbackPosition)
+                    }
+                }
+            })
         }
     }
 
@@ -96,11 +146,10 @@ class VideoPlayerActivity : AppCompatActivity(){
             simpleExoPlayer!!.stop()
             playWhenReady = simpleExoPlayer!!.playWhenReady
             playbackPosition = simpleExoPlayer!!.currentPosition
-            currentWindow = simpleExoPlayer!!.currentWindowIndex
             simpleExoPlayer!!.release()
 
             MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.videoStatus.name).edit {
-                putLong(Constants.SharedPrefItemNames.position.name, playbackPosition).commit()
+                putLong(currentVideo?.assetFileStringUri, playbackPosition).commit()
             }
 
             simpleExoPlayer = null

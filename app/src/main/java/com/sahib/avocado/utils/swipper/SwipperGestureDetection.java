@@ -71,6 +71,11 @@ public class SwipperGestureDetection implements View.OnTouchListener{
         progressBarAudio.setProgressText("" + currentVolume);
     }
 
+    public void setNewVideoDuration(long videoDuration) {
+        this.videoDuration = videoDuration;
+        SEEK_THRESHOLD = (int) (videoDuration / 100);
+    }
+
     private void setSeekView() {
         seekView = new SwipperSeekView(activity);
         SEEK_THRESHOLD = (int) (videoDuration / 100);
@@ -212,7 +217,7 @@ public class SwipperGestureDetection implements View.OnTouchListener{
             brightness = window.getAttributes().screenBrightness + distance;
             layout.screenBrightness = brightness;
 
-            MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.videoStatus.name()).edit().
+            MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.general.name()).edit().
                     putFloat(Constants.SharedPrefItemNames.brightness.name(), brightness).apply();
 
             window.setAttributes(layout);
