@@ -13,7 +13,8 @@ class Constants {
         isOnboarded,
         list,
         position,
-        brightness
+        brightness,
+        scale
     }
 
     enum class IntentItems {

@@ -1,5 +1,6 @@
 package com.sahib.avocado.utils.swipper;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.media.AudioManager;
@@ -11,6 +12,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.sahib.avocado.Constants;
 import com.sahib.avocado.app.MyApplication;
 
@@ -23,8 +25,9 @@ public class SwipperGestureDetection implements View.OnTouchListener{
     private SwipperProgressBar progressBarAudio;
     private SwipperSeekView seekView;
 
-    private Activity activity;
-    private SimpleExoPlayer simpleExoPlayer;
+    private final Activity activity;
+    private final SimpleExoPlayer simpleExoPlayer;
+    private final PlayerView playerView;
     private float brightness;
     private long videoDuration;
     private AudioManager audio;
@@ -34,17 +37,16 @@ public class SwipperGestureDetection implements View.OnTouchListener{
     private long lastTapTimeMs = 0;
     private long touchDownMs = 0;
     private float seekDistance = 0;
-    private long currentPosition = 0;
-    private float distanceCovered = 0;
     private int ACTION_IN_PROCESS = 0;
     private int SEEK_THRESHOLD = 0;
     private int HALF_WIDTH = 0;
 
-    public SwipperGestureDetection(Activity activity, float brightness, long videoDuration, SimpleExoPlayer simpleExoPlayer) {
+    public SwipperGestureDetection(Activity activity, float brightness, long videoDuration, SimpleExoPlayer simpleExoPlayer, PlayerView playerView) {
         this.activity = activity;
         this.brightness = brightness;
         this.videoDuration = videoDuration;
         this.simpleExoPlayer = simpleExoPlayer;
+        this.playerView = playerView;
 
         setBrightnessProgress();
         setAudioProgress();
@@ -81,6 +83,7 @@ public class SwipperGestureDetection implements View.OnTouchListener{
         SEEK_THRESHOLD = (int) (videoDuration / 100);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (HALF_WIDTH == 0) {
@@ -92,6 +95,7 @@ public class SwipperGestureDetection implements View.OnTouchListener{
 
         final int action = event.getActionMasked();
 
+        float distanceCovered = 0;
         switch (action) {
             case MotionEvent.ACTION_DOWN: {
                 seekDistance = 0;
@@ -165,6 +169,7 @@ public class SwipperGestureDetection implements View.OnTouchListener{
                     //TODO tap listener if required
                 }
                 mActivePointerId = INVALID_POINTER_ID;
+                toggleControllerVisibility();
                 break;
             }
             case MotionEvent.ACTION_CANCEL: {
@@ -182,6 +187,14 @@ public class SwipperGestureDetection implements View.OnTouchListener{
             }
         }
         return true;
+    }
+
+    private void toggleControllerVisibility() {
+        if (playerView.isControllerVisible()) {
+            playerView.hideController();
+        } else {
+            playerView.showController();
+        }
     }
 
     public void changeBrightness(float X, float Y, float x, float y, float distance) {
@@ -273,7 +286,7 @@ public class SwipperGestureDetection implements View.OnTouchListener{
         seekView.show();
 
         seekDistance += distance * SEEK_THRESHOLD;
-        currentPosition = simpleExoPlayer.getCurrentPosition();
+        long currentPosition = simpleExoPlayer.getCurrentPosition();
 
         if (currentPosition + (int) (distance * SEEK_THRESHOLD) > 0 && currentPosition + (int) (distance * SEEK_THRESHOLD) < simpleExoPlayer.getDuration() + 10) {
             simpleExoPlayer.seekTo(currentPosition + (int) (distance * SEEK_THRESHOLD));

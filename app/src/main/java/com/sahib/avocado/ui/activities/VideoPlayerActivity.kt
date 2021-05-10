@@ -3,6 +3,8 @@ package com.sahib.avocado.ui.activities
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageButton
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import com.google.android.exoplayer2.C
@@ -22,19 +24,23 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
-class VideoPlayerActivity : AppCompatActivity(){
+class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var swipeGestureDetection: SwipperGestureDetection
     private var playWhenReady = true
     private var playbackPosition: Long = 0
     private var currentBrightness: Float = 0.1F
     private lateinit var playerView: PlayerView
+    private lateinit var customController: LinearLayout
+    private lateinit var exo_video_fit: ImageButton
+    private lateinit var exo_video_fill: ImageButton
     private var simpleExoPlayer: SimpleExoPlayer ?= null
     private var position: Int ?= null
     private var list: ArrayList<VideoContent> ?= null
     private var currentVideo: VideoContent ?= null
     private var playbackProgressObservable: Observable<Long>? =null
     private var playbackDisposable: Disposable ?= null
+    private var currentScale: Int = AspectRatioFrameLayout.RESIZE_MODE_FIT
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +52,9 @@ class VideoPlayerActivity : AppCompatActivity(){
 
     private fun initView() {
         playerView = findViewById(R.id.videoView)
+        customController = findViewById(R.id.layout_custom_controller)
+        exo_video_fit = findViewById(R.id.exo_video_fit)
+        exo_video_fill = findViewById(R.id.exo_video_fill)
         currentBrightness =  MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.general.name).getFloat(Constants.SharedPrefItemNames.brightness.name, this.window.attributes.screenBrightness)
 
         list = intent.getParcelableArrayListExtra(Constants.IntentItems.videoList.name)
@@ -84,11 +93,8 @@ class VideoPlayerActivity : AppCompatActivity(){
             simpleExoPlayer?.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
             simpleExoPlayer?.prepare()
 
-            playerView.controllerAutoShow = true
-            playerView.controllerHideOnTouch = true
-            swipeGestureDetection = SwipperGestureDetection(this, currentBrightness, currentVideo!!.videoDuration, simpleExoPlayer)
+            swipeGestureDetection = SwipperGestureDetection(this, currentBrightness, currentVideo!!.videoDuration, simpleExoPlayer, playerView)
             playerView.setOnTouchListener(swipeGestureDetection)
-            playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
 
             //To change current seek position in case the track is changed
             simpleExoPlayer!!.addListener(object: EventListener {
@@ -109,7 +115,24 @@ class VideoPlayerActivity : AppCompatActivity(){
                     }
                 }
             })
+            handleVideoAspectRatio()
         }
+    }
+
+    private fun handleVideoAspectRatio() {
+        currentScale = MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.general.name).getInt(Constants.SharedPrefItemNames.scale.name, AspectRatioFrameLayout.RESIZE_MODE_FIT)
+        playerView.resizeMode = currentScale
+
+        if (currentScale == AspectRatioFrameLayout.RESIZE_MODE_FIT) {
+            exo_video_fit.visibility = View.GONE
+            exo_video_fill.visibility = View.VISIBLE
+        } else {
+            exo_video_fill.visibility = View.GONE
+            exo_video_fit.visibility = View.VISIBLE
+        }
+
+        exo_video_fit.setOnClickListener(this)
+        exo_video_fill.setOnClickListener(this)
     }
 
     override fun onStart() {
@@ -170,6 +193,25 @@ class VideoPlayerActivity : AppCompatActivity(){
         val attr = this.window.attributes
         attr.screenBrightness = currentBrightness
         this.window.attributes = attr
+    }
+
+    override fun onClick(v: View?) {
+        when {
+            v!!.id == R.id.exo_video_fit -> {
+                currentScale = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                exo_video_fit.visibility = View.GONE
+                exo_video_fill.visibility = View.VISIBLE
+            }
+            v.id == R.id.exo_video_fill -> {
+                currentScale = AspectRatioFrameLayout.RESIZE_MODE_FILL
+                exo_video_fill.visibility = View.GONE
+                exo_video_fit.visibility = View.VISIBLE
+            }
+        }
+        playerView.resizeMode = currentScale
+        MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.general.name).edit {
+            putInt(Constants.SharedPrefItemNames.scale.name, currentScale).commit()
+        }
     }
 
 }
