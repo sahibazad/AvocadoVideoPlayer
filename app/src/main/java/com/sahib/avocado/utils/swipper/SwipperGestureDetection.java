@@ -40,6 +40,7 @@ public class SwipperGestureDetection implements View.OnTouchListener{
     private int ACTION_IN_PROCESS = 0;
     private int SEEK_THRESHOLD = 0;
     private int HALF_WIDTH = 0;
+    private int DISTANCE_THRESHOLD = 1;
 
     public SwipperGestureDetection(Activity activity, float brightness, long videoDuration, SimpleExoPlayer simpleExoPlayer, PlayerView playerView) {
         this.activity = activity;
@@ -107,34 +108,37 @@ public class SwipperGestureDetection implements View.OnTouchListener{
                 final float x = event.getX();
                 final float y = event.getY();
                 distanceCovered = getDistance(x, y, event);
-                try {
-                    switch (ACTION_IN_PROCESS){
-                        case 1:
-                            changeBrightness(event.getHistoricalX(0, 0), event.getHistoricalY(0, 0), x, y, distanceCovered);
-                            break;
-                        case 2:
-                            changeVolume(event.getHistoricalX(0, 0), event.getHistoricalY(0, 0), x, y, distanceCovered);
-                            break;
-                        case 3:
-                            changeSeek(event.getHistoricalX(0, 0), event.getHistoricalY(0, 0), x, y, distanceCovered);
-                            break;
-                        default:
-                            int newX = (int) x;
-                            int newY = (int) y;
-                            int oldX = (int) event.getHistoricalX(0, 0);
-                            int oldY = (int) event.getHistoricalY(0, 0);
-                            int deltaX = oldX - newX;
-                            int deltaY = oldY - newY;
-
-                            if(Math.abs(deltaY)>Math.abs(deltaX)){
+                if (distanceCovered > DISTANCE_THRESHOLD) {
+                    try {
+                        switch (ACTION_IN_PROCESS) {
+                            case 1:
                                 changeBrightness(event.getHistoricalX(0, 0), event.getHistoricalY(0, 0), x, y, distanceCovered);
+                                break;
+                            case 2:
                                 changeVolume(event.getHistoricalX(0, 0), event.getHistoricalY(0, 0), x, y, distanceCovered);
-                            } else {
+                                break;
+                            case 3:
                                 changeSeek(event.getHistoricalX(0, 0), event.getHistoricalY(0, 0), x, y, distanceCovered);
-                            }
-                            break;
+                                break;
+                            default:
+                                int newX = (int) x;
+                                int newY = (int) y;
+                                int oldX = (int) event.getHistoricalX(0, 0);
+                                int oldY = (int) event.getHistoricalY(0, 0);
+                                int deltaX = oldX - newX;
+                                int deltaY = oldY - newY;
+
+                                if (Math.abs(deltaY) > Math.abs(deltaX)) {
+                                    changeBrightness(event.getHistoricalX(0, 0), event.getHistoricalY(0, 0), x, y, distanceCovered);
+                                    changeVolume(event.getHistoricalX(0, 0), event.getHistoricalY(0, 0), x, y, distanceCovered);
+                                } else {
+                                    changeSeek(event.getHistoricalX(0, 0), event.getHistoricalY(0, 0), x, y, distanceCovered);
+                                }
+                                break;
+                        }
+                    } catch (Exception e) {
                     }
-                } catch (Exception e) { }
+                }
                 break;
             }
             case MotionEvent.ACTION_UP: {
