@@ -1,6 +1,7 @@
 package com.sahib.avocado.ui.activities
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
@@ -8,11 +9,19 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Format
 import com.google.android.exoplayer2.Player.EventListener
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
+import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.MergingMediaSource
+import com.google.android.exoplayer2.source.SingleSampleMediaSource
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.PlayerView
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.util.MimeTypes
 import com.google.android.exoplayer2.util.Util
 import com.sahib.avocado.Constants
 import com.sahib.avocado.R
@@ -23,6 +32,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import java.io.File
 
 class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -46,8 +56,9 @@ class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_player)
 
-        initView();
+        initView()
         initExoPlayer()
+        handleVideoAspectRatio()
     }
 
     private fun initView() {
@@ -81,13 +92,11 @@ class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
             simpleExoPlayer = SimpleExoPlayer.Builder(this).build()
             playerView.player = simpleExoPlayer
 
-            val mediaItemList : ArrayList<MediaItem> = ArrayList()
-
+            val mediaSourcesList : ArrayList<MediaSource> = ArrayList()
             for (videoContent:VideoContent in list!!) {
-                mediaItemList.add(MediaItem.fromUri(videoContent.assetFileStringUri!!))
+                mediaSourcesList.add(ExtractorMediaSource(Uri.parse(videoContent.assetFileStringUri), DefaultDataSourceFactory(this), DefaultExtractorsFactory(), null, null, null))
             }
-
-            simpleExoPlayer?.setMediaItems(mediaItemList)
+            simpleExoPlayer?.setMediaSources(mediaSourcesList)
             simpleExoPlayer?.playWhenReady = playWhenReady
             simpleExoPlayer?.seekTo(position!!, playbackPosition)
             simpleExoPlayer?.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
@@ -115,7 +124,37 @@ class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 }
             })
-            handleVideoAspectRatio()
+        }
+    }
+    /*
+    * Loads single item but with subtitle. TODO load subtitles of the whole list if available
+    * */
+    private fun initExoPlayerSingleItem() {
+        if (simpleExoPlayer == null) {
+            simpleExoPlayer = SimpleExoPlayer.Builder(this).build()
+            playerView.player = simpleExoPlayer
+
+            val videoContent:VideoContent = list!![position!!]
+            val mediaSource = ExtractorMediaSource(Uri.parse(videoContent.assetFileStringUri), DefaultDataSourceFactory(this), DefaultExtractorsFactory(), null, null, null)
+            val subtitleUri = videoContent.path!!.substring(0, videoContent.path!!.lastIndexOf(".")) + ".srt"
+            if (File(subtitleUri).exists()) {
+                val mergedSource: MergingMediaSource
+                val subtitleFormat: Format = Format.createTextSampleFormat(null, MimeTypes.APPLICATION_SUBRIP, Format.NO_VALUE, "en")
+                val dataSourceFactory = DefaultDataSourceFactory(this, Util.getUserAgent(this, this.packageName), DefaultBandwidthMeter())
+                val subtitleSource = SingleSampleMediaSource.Factory(dataSourceFactory) .createMediaSource(Uri.parse(subtitleUri), subtitleFormat, C.TIME_UNSET)
+                mergedSource = MergingMediaSource(mediaSource, subtitleSource)
+                simpleExoPlayer?.setMediaSource(mergedSource)
+            } else {
+                simpleExoPlayer?.setMediaSource(mediaSource)
+            }
+
+            simpleExoPlayer?.playWhenReady = playWhenReady
+            simpleExoPlayer?.seekTo(0, playbackPosition)
+            simpleExoPlayer?.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
+            simpleExoPlayer?.prepare()
+
+            swipeGestureDetection = SwipperGestureDetection(this, currentBrightness, currentVideo!!.videoDuration, simpleExoPlayer, playerView)
+            playerView.setOnTouchListener(swipeGestureDetection)
         }
     }
 
