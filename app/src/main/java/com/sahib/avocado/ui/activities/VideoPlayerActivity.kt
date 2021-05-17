@@ -94,7 +94,18 @@ class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
 
             val mediaSourcesList : ArrayList<MediaSource> = ArrayList()
             for (videoContent:VideoContent in list!!) {
-                mediaSourcesList.add(ExtractorMediaSource(Uri.parse(videoContent.assetFileStringUri), DefaultDataSourceFactory(this), DefaultExtractorsFactory(), null, null, null))
+                val mediaSource = ExtractorMediaSource(Uri.parse(videoContent.assetFileStringUri), DefaultDataSourceFactory(this), DefaultExtractorsFactory(), null, null, null)
+                val subtitleUri = videoContent.path!!.substring(0, videoContent.path!!.lastIndexOf(".")) + ".srt"
+                if (File(subtitleUri).exists()) {
+                    val mergedSource: MergingMediaSource
+                    val subtitleFormat: Format = Format.createTextSampleFormat(null, MimeTypes.APPLICATION_SUBRIP, Format.NO_VALUE, "en")
+                    val dataSourceFactory = DefaultDataSourceFactory(this, Util.getUserAgent(this, this.packageName), DefaultBandwidthMeter())
+                    val subtitleSource = SingleSampleMediaSource.Factory(dataSourceFactory) .createMediaSource(Uri.parse(subtitleUri), subtitleFormat, C.TIME_UNSET)
+                    mergedSource = MergingMediaSource(mediaSource, subtitleSource)
+                    mediaSourcesList.add(mergedSource)
+                } else {
+                    mediaSourcesList.add(mediaSource)
+                }
             }
             simpleExoPlayer?.setMediaSources(mediaSourcesList)
             simpleExoPlayer?.playWhenReady = playWhenReady
@@ -124,37 +135,6 @@ class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 }
             })
-        }
-    }
-    /*
-    * Loads single item but with subtitle. TODO load subtitles of the whole list if available
-    * */
-    private fun initExoPlayerSingleItem() {
-        if (simpleExoPlayer == null) {
-            simpleExoPlayer = SimpleExoPlayer.Builder(this).build()
-            playerView.player = simpleExoPlayer
-
-            val videoContent:VideoContent = list!![position!!]
-            val mediaSource = ExtractorMediaSource(Uri.parse(videoContent.assetFileStringUri), DefaultDataSourceFactory(this), DefaultExtractorsFactory(), null, null, null)
-            val subtitleUri = videoContent.path!!.substring(0, videoContent.path!!.lastIndexOf(".")) + ".srt"
-            if (File(subtitleUri).exists()) {
-                val mergedSource: MergingMediaSource
-                val subtitleFormat: Format = Format.createTextSampleFormat(null, MimeTypes.APPLICATION_SUBRIP, Format.NO_VALUE, "en")
-                val dataSourceFactory = DefaultDataSourceFactory(this, Util.getUserAgent(this, this.packageName), DefaultBandwidthMeter())
-                val subtitleSource = SingleSampleMediaSource.Factory(dataSourceFactory) .createMediaSource(Uri.parse(subtitleUri), subtitleFormat, C.TIME_UNSET)
-                mergedSource = MergingMediaSource(mediaSource, subtitleSource)
-                simpleExoPlayer?.setMediaSource(mergedSource)
-            } else {
-                simpleExoPlayer?.setMediaSource(mediaSource)
-            }
-
-            simpleExoPlayer?.playWhenReady = playWhenReady
-            simpleExoPlayer?.seekTo(0, playbackPosition)
-            simpleExoPlayer?.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
-            simpleExoPlayer?.prepare()
-
-            swipeGestureDetection = SwipperGestureDetection(this, currentBrightness, currentVideo!!.videoDuration, simpleExoPlayer, playerView)
-            playerView.setOnTouchListener(swipeGestureDetection)
         }
     }
 
