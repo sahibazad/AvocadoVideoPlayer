@@ -295,9 +295,9 @@ public class SwipperGestureDetection implements View.OnTouchListener{
         if (currentPosition + (int) (distance * SEEK_THRESHOLD) > 0 && currentPosition + (int) (distance * SEEK_THRESHOLD) < simpleExoPlayer.getDuration() + 10) {
             simpleExoPlayer.seekTo(currentPosition + (int) (distance * SEEK_THRESHOLD));
             if (seekDistance > 0)
-                seekView.setText("+" + Math.abs((int) (seekDistance / SEEK_THRESHOLD)) + ":" + String.valueOf(Math.abs((int) ((seekDistance) % SEEK_THRESHOLD))).substring(0, 2) + "(" + (int) ((currentPosition + (int) (distance * SEEK_THRESHOLD)) / SEEK_THRESHOLD) + ":" + String.valueOf((int) ((currentPosition + (int) (distance * SEEK_THRESHOLD)) % SEEK_THRESHOLD)).substring(0, 2) + ")");
+                seekView.setText("+" + Math.abs((int) (seekDistance / SEEK_THRESHOLD)) + ":" + String.valueOf(Math.abs((int) ((seekDistance) % SEEK_THRESHOLD))).substring(0, 2));
             else
-                seekView.setText("-" + Math.abs((int) (seekDistance / SEEK_THRESHOLD)) + ":" + String.valueOf(Math.abs((int) ((seekDistance) % SEEK_THRESHOLD))).substring(0, 2) + "(" + (int) ((currentPosition + (int) (distance * SEEK_THRESHOLD)) / SEEK_THRESHOLD) + ":" + String.valueOf((int) ((currentPosition + (int) (distance * SEEK_THRESHOLD)) % SEEK_THRESHOLD)).substring(0, 2) + ")");
+                seekView.setText("-" + Math.abs((int) (seekDistance / SEEK_THRESHOLD)) + ":" + String.valueOf(Math.abs((int) ((seekDistance) % SEEK_THRESHOLD))).substring(0, 2));
         }
     }
 

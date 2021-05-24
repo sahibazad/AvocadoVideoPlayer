@@ -46,6 +46,11 @@ class DirectoriesActivity : AppCompatActivity() {
         loadDefaultList();
     }
 
+    override fun onResume() {
+        super.onResume()
+        reloadDirectoriesList()
+    }
+
     private fun initRecyclerView() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = DirectoriesAdapter(this, list)
