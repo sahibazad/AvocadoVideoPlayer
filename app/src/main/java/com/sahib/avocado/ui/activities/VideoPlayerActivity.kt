@@ -1,8 +1,10 @@
 package com.sahib.avocado.ui.activities
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -44,12 +46,12 @@ class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var customController: LinearLayout
     private lateinit var exo_video_fit: ImageButton
     private lateinit var exo_video_fill: ImageButton
-    private var simpleExoPlayer: SimpleExoPlayer ?= null
-    private var position: Int ?= null
-    private var list: ArrayList<VideoContent> ?= null
-    private var currentVideo: VideoContent ?= null
-    private var playbackProgressObservable: Observable<Long>? =null
-    private var playbackDisposable: Disposable ?= null
+    private var simpleExoPlayer: SimpleExoPlayer? = null
+    private var position: Int? = null
+    private var list: ArrayList<VideoContent>? = null
+    private var currentVideo: VideoContent? = null
+    private var playbackProgressObservable: Observable<Long>? = null
+    private var playbackDisposable: Disposable? = null
     private var currentScale: Int = AspectRatioFrameLayout.RESIZE_MODE_FIT
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,21 +68,26 @@ class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
         customController = findViewById(R.id.layout_custom_controller)
         exo_video_fit = findViewById(R.id.exo_video_fit)
         exo_video_fill = findViewById(R.id.exo_video_fill)
-        currentBrightness =  MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.general.name).getFloat(Constants.SharedPrefItemNames.brightness.name, this.window.attributes.screenBrightness)
+        currentBrightness =
+            MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.general.name).getFloat(
+                Constants.SharedPrefItemNames.brightness.name,
+                this.window.attributes.screenBrightness
+            )
 
         list = intent.getParcelableArrayListExtra(Constants.IntentItems.videoList.name)
         position = intent.getIntExtra(Constants.IntentItems.position.name, 0)
         currentVideo = list?.get(position!!)
 
-        playbackPosition =  MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.videoStatus.name).getLong(currentVideo?.assetFileStringUri, 0)
-
-        setDefaultBrightness()
+        playbackPosition =
+            MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.videoStatus.name)
+                .getLong(currentVideo?.assetFileStringUri, 0)
         observerProgress()
     }
 
     private fun observerProgress() {
         //RxKotlin to observe progress update
-        playbackDisposable = playbackProgressObservable?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())?.subscribe {
+        playbackDisposable = playbackProgressObservable?.subscribeOn(Schedulers.io())
+            ?.observeOn(AndroidSchedulers.mainThread())?.subscribe {
             if (simpleExoPlayer!!.currentWindowIndex == position) {
                 playbackPosition = it
             }
@@ -92,15 +99,33 @@ class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
             simpleExoPlayer = SimpleExoPlayer.Builder(this).build()
             playerView.player = simpleExoPlayer
 
-            val mediaSourcesList : ArrayList<MediaSource> = ArrayList()
-            for (videoContent:VideoContent in list!!) {
-                val mediaSource = ExtractorMediaSource(Uri.parse(videoContent.assetFileStringUri), DefaultDataSourceFactory(this), DefaultExtractorsFactory(), null, null, null)
-                val subtitleUri = videoContent.path!!.substring(0, videoContent.path!!.lastIndexOf(".")) + ".srt"
+            val mediaSourcesList: ArrayList<MediaSource> = ArrayList()
+            for (videoContent: VideoContent in list!!) {
+                val mediaSource = ExtractorMediaSource(
+                    Uri.parse(videoContent.assetFileStringUri),
+                    DefaultDataSourceFactory(this),
+                    DefaultExtractorsFactory(),
+                    null,
+                    null,
+                    null
+                )
+                val subtitleUri =
+                    videoContent.path!!.substring(0, videoContent.path!!.lastIndexOf(".")) + ".srt"
                 if (File(subtitleUri).exists()) {
                     val mergedSource: MergingMediaSource
-                    val subtitleFormat: Format = Format.createTextSampleFormat(null, MimeTypes.APPLICATION_SUBRIP, Format.NO_VALUE, "en")
-                    val dataSourceFactory = DefaultDataSourceFactory(this, Util.getUserAgent(this, this.packageName), DefaultBandwidthMeter())
-                    val subtitleSource = SingleSampleMediaSource.Factory(dataSourceFactory) .createMediaSource(Uri.parse(subtitleUri), subtitleFormat, C.TIME_UNSET)
+                    val subtitleFormat: Format = Format.createTextSampleFormat(
+                        null,
+                        MimeTypes.APPLICATION_SUBRIP,
+                        Format.NO_VALUE,
+                        "en"
+                    )
+                    val dataSourceFactory = DefaultDataSourceFactory(
+                        this,
+                        Util.getUserAgent(this, this.packageName),
+                        DefaultBandwidthMeter()
+                    )
+                    val subtitleSource = SingleSampleMediaSource.Factory(dataSourceFactory)
+                        .createMediaSource(Uri.parse(subtitleUri), subtitleFormat, C.TIME_UNSET)
                     mergedSource = MergingMediaSource(mediaSource, subtitleSource)
                     mediaSourcesList.add(mergedSource)
                 } else {
@@ -113,33 +138,42 @@ class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
             simpleExoPlayer?.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
             simpleExoPlayer?.prepare()
 
-            swipeGestureDetection = SwipperGestureDetection(this, currentBrightness, currentVideo!!.videoDuration, simpleExoPlayer, playerView)
-            playerView.setOnTouchListener(swipeGestureDetection)
-
-            //To change current seek position in case the track is changed
-            simpleExoPlayer!!.addListener(object: EventListener {
-                override fun onPositionDiscontinuity(reason: Int) {
-                    val latestWindowIndex: Int = simpleExoPlayer!!.currentWindowIndex
-                    if (latestWindowIndex != position) {
-                        //Save the old tracks playback position
-                        MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.videoStatus.name).edit {
-                            putLong(currentVideo?.assetFileStringUri, playbackPosition).commit()
-                        }
-
-                        //Load the new tracks playback position
-                        position = latestWindowIndex
-                        currentVideo = list?.get(position!!)
-                        swipeGestureDetection.setNewVideoDuration(currentVideo!!.videoDuration)
-                        playbackPosition =  MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.videoStatus.name).getLong(currentVideo?.assetFileStringUri, 0)
-                        simpleExoPlayer!!.seekTo(playbackPosition)
-                    }
-                }
-            })
+            setSwipeGestureDetection()
+            setVideoDiscontinuityListener()
         }
     }
 
+    private fun setVideoDiscontinuityListener() {
+        //To change current seek position in case the track is changed
+        simpleExoPlayer!!.addListener(object : EventListener {
+            override fun onPositionDiscontinuity(reason: Int) {
+                val latestWindowIndex: Int = simpleExoPlayer!!.currentWindowIndex
+                if (latestWindowIndex != position) {
+                    //Save the old tracks playback position
+                    MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.videoStatus.name)
+                        .edit {
+                            putLong(currentVideo?.assetFileStringUri, playbackPosition).commit()
+                        }
+
+                    //Load the new tracks playback position
+                    position = latestWindowIndex
+                    currentVideo = list?.get(position!!)
+                    swipeGestureDetection.setNewVideoDuration(currentVideo!!.videoDuration)
+                    playbackPosition =
+                        MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.videoStatus.name)
+                            .getLong(currentVideo?.assetFileStringUri, 0)
+                    simpleExoPlayer!!.seekTo(playbackPosition)
+                }
+            }
+        })
+    }
+
     private fun handleVideoAspectRatio() {
-        currentScale = MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.general.name).getInt(Constants.SharedPrefItemNames.scale.name, AspectRatioFrameLayout.RESIZE_MODE_FIT)
+        currentScale = MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.general.name)
+            .getInt(
+                Constants.SharedPrefItemNames.scale.name,
+                AspectRatioFrameLayout.RESIZE_MODE_FIT
+            )
         playerView.resizeMode = currentScale
 
         if (currentScale == AspectRatioFrameLayout.RESIZE_MODE_FIT) {
@@ -163,7 +197,7 @@ class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onResume() {
         super.onResume()
-        hideSystemUi()
+        handleConfiguration()
         if (Util.SDK_INT < 24 || simpleExoPlayer == null) {
             initExoPlayer()
         }
@@ -198,9 +232,43 @@ class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        handleConfiguration()
+    }
+
+    private fun setSwipeGestureDetection() {
+        swipeGestureDetection = SwipperGestureDetection(this,
+            currentBrightness,
+            currentVideo!!.videoDuration,
+            playerView,
+            SwipperGestureDetection.OnTouchListener { v, event ->
+                val action = event!!.actionMasked
+                if (action == MotionEvent.ACTION_DOWN) {
+                    //TODO show cast button for some time
+                }
+            })
+        playerView.setOnTouchListener(swipeGestureDetection)
+    }
+
+    private fun handleConfiguration() {
+        currentBrightness =
+            MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.general.name).getFloat(
+                Constants.SharedPrefItemNames.brightness.name,
+                this.window.attributes.screenBrightness
+            )
+        val currentOrientation = resources.configuration.orientation
+        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            hideSystemUiFullScreen()
+        } else {
+            hideSystemUi()
+        }
+        setSwipeGestureDetection()
+    }
+
     @SuppressLint("InlinedApi")
-    private fun hideSystemUi() {
-        playerView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
+    private fun hideSystemUiFullScreen() {
+        playerView!!.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
                 or View.SYSTEM_UI_FLAG_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -208,10 +276,11 @@ class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
                 or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
     }
 
-    private fun setDefaultBrightness() {
-        val attr = this.window.attributes
-        attr.screenBrightness = currentBrightness
-        this.window.attributes = attr
+    @SuppressLint("InlinedApi")
+    private fun hideSystemUi() {
+        playerView!!.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
     }
 
     override fun onClick(v: View?) {

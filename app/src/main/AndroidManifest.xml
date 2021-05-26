@@ -35,7 +35,8 @@
         <activity android:name=".ui.activities.VideosActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.activities.VideoPlayerActivity"
-            android:screenOrientation="landscape"/>
+            android:screenOrientation="fullSensor"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"/>
         <activity android:name=".ui.activities.VideoPlayerVDKActivity"
             android:screenOrientation="portrait"/>
     </application>

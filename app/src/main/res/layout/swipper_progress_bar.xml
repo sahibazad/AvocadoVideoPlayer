@@ -19,7 +19,7 @@
         android:paddingTop="1dp"
         android:progress="50"
         android:rotation="270"
-        android:layout_marginTop="110dp"
+        android:layout_marginTop="120dp"
         android:progressTint="#FFFFFF"
         android:transformPivotX="0dp"/>
 

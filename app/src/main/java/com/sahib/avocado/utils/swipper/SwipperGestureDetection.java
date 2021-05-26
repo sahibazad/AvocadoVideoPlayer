@@ -18,16 +18,15 @@ import com.sahib.avocado.app.MyApplication;
 
 import static android.view.MotionEvent.INVALID_POINTER_ID;
 
-public class SwipperGestureDetection implements View.OnTouchListener{
-
-    private int mActivePointerId = INVALID_POINTER_ID;
-    private SwipperProgressBar progressBarBrightness;
-    private SwipperProgressBar progressBarAudio;
-    private SwipperSeekView seekView;
+public class SwipperGestureDetection implements View.OnTouchListener {
 
     private final Activity activity;
     private final SimpleExoPlayer simpleExoPlayer;
     private final PlayerView playerView;
+    private int mActivePointerId = INVALID_POINTER_ID;
+    private SwipperProgressBar progressBarBrightness;
+    private SwipperProgressBar progressBarAudio;
+    private SwipperSeekView seekView;
     private float brightness;
     private long videoDuration;
     private AudioManager audio;
@@ -41,13 +40,15 @@ public class SwipperGestureDetection implements View.OnTouchListener{
     private int SEEK_THRESHOLD = 0;
     private int HALF_WIDTH = 0;
     private int DISTANCE_THRESHOLD = 1;
+    private OnTouchListener touchListener;
 
-    public SwipperGestureDetection(Activity activity, float brightness, long videoDuration, SimpleExoPlayer simpleExoPlayer, PlayerView playerView) {
+    public SwipperGestureDetection(Activity activity, float brightness, long videoDuration, PlayerView playerView, OnTouchListener touchListener) {
         this.activity = activity;
         this.brightness = brightness;
         this.videoDuration = videoDuration;
-        this.simpleExoPlayer = simpleExoPlayer;
+        this.simpleExoPlayer = (SimpleExoPlayer) playerView.getPlayer();
         this.playerView = playerView;
+        this.touchListener = touchListener;
 
         setBrightnessProgress();
         setAudioProgress();
@@ -59,8 +60,8 @@ public class SwipperGestureDetection implements View.OnTouchListener{
         layout.screenBrightness = brightness;
         activity.getWindow().setAttributes(layout);
         progressBarBrightness = new SwipperProgressBar(activity);
-        progressBarBrightness.setProgress((int) ((brightness / 255) * 100));
-        progressBarBrightness.setProgressText(((int) (brightness / 255)) + "%");
+        progressBarBrightness.setProgress((int) ((brightness / 300) * 100));
+        progressBarBrightness.setProgressText(((int) (brightness / 300)) + "%");
     }
 
     private void setAudioProgress() {
@@ -87,6 +88,7 @@ public class SwipperGestureDetection implements View.OnTouchListener{
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        touchListener.onTouch(v, event);
         if (HALF_WIDTH == 0) {
             v.post(() -> {
                 int width = v.getWidth();
@@ -205,7 +207,7 @@ public class SwipperGestureDetection implements View.OnTouchListener{
         if (HALF_WIDTH == 0 || x > HALF_WIDTH) return;
         ACTION_IN_PROCESS = 1;
         progressBarBrightness.setTitle("Brightness");
-        distance = distance / 270;
+        distance = distance / 300;
         if (y < Y) {
             commonBrightness(distance);
         } else {
@@ -217,28 +219,34 @@ public class SwipperGestureDetection implements View.OnTouchListener{
         int brightnessInt;
         Window window = activity.getWindow();
         WindowManager.LayoutParams layout = window.getAttributes();
-        if (window.getAttributes().screenBrightness + distance <= 1 && window.getAttributes().screenBrightness + distance >= 0) {
-            progressBarBrightness.show();
-            progressBarAudio.hide();
-            seekView.hide();
+        progressBarBrightness.show();
+        progressBarAudio.hide();
+        seekView.hide();
 
-            if ((int) ((window.getAttributes().screenBrightness + distance) * 100) > 100) {
-                brightnessInt = 100;
-            } else {
-                brightnessInt = Math.max((int) ((window.getAttributes().screenBrightness + distance) * 100), 0);
-            }
-
-            progressBarBrightness.setProgress(brightnessInt);
-            progressBarBrightness.setProgressText(brightnessInt + "%");
-
-            brightness = window.getAttributes().screenBrightness + distance;
-            layout.screenBrightness = brightness;
-
-            MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.general.name()).edit().
-                    putFloat(Constants.SharedPrefItemNames.brightness.name(), brightness).apply();
-
-            window.setAttributes(layout);
+        if ((int) ((window.getAttributes().screenBrightness + distance) * 100) >= 100) {
+            brightnessInt = 100;
+        } else if ((int) ((window.getAttributes().screenBrightness + distance) * 100) <= 0) {
+            brightnessInt = 0;
+        } else {
+            brightnessInt = Math.max((int) ((window.getAttributes().screenBrightness + distance) * 100), 0);
         }
+
+        progressBarBrightness.setProgress(brightnessInt);
+        progressBarBrightness.setProgressText(brightnessInt + "%");
+
+        brightness = window.getAttributes().screenBrightness + distance;
+        if (brightness >= 1) {
+            brightness = 1;
+        }
+        if (brightness <= 0) {
+            brightness = 0;
+        }
+        layout.screenBrightness = brightness;
+
+        MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.general.name()).edit().
+                putFloat(Constants.SharedPrefItemNames.brightness.name(), brightness).apply();
+
+        window.setAttributes(layout);
     }
 
     public void changeVolume(float X, float Y, float x, float y, float distance) {
@@ -262,7 +270,7 @@ public class SwipperGestureDetection implements View.OnTouchListener{
             if (currentVolume < maxVolume) {
                 currentVolume = currentVolume + 1;
             }
-        } else{
+        } else {
             if (currentVolume > 0) {
                 currentVolume = currentVolume - 1;
             } else {
@@ -317,5 +325,9 @@ public class SwipperGestureDetection implements View.OnTouchListener{
         float dy = (ev.getY(0) - startY);
         distanceSum += Math.sqrt(dx * dx + dy * dy);
         return distanceSum;
+    }
+
+    public interface OnTouchListener {
+        void onTouch(View v, MotionEvent event);
     }
 }
