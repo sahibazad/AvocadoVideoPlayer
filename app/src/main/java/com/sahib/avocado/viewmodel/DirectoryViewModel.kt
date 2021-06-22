@@ -9,7 +9,7 @@ import com.google.gson.reflect.TypeToken
 import com.sahib.avocado.Constants
 import com.sahib.avocado.model.VideoFolderContent
 
-class DirectoryViewModel : ViewModel(){
+class DirectoryViewModel : ViewModel() {
 
     private val directoryList = MutableLiveData<ArrayList<VideoFolderContent>>()
 
@@ -25,7 +25,7 @@ class DirectoryViewModel : ViewModel(){
         sharedPreferencesEditor = sharedPreferences.edit()
     }
 
-    open fun getDefaultDirectoryList() : ArrayList<VideoFolderContent> {
+    open fun getDefaultDirectoryList(): ArrayList<VideoFolderContent> {
         val directoryListString = sharedPreferences.getString(Constants.SharedPrefItemNames.list.name, "")
 
         if (!directoryListString.isNullOrEmpty()) {
@@ -36,12 +36,11 @@ class DirectoryViewModel : ViewModel(){
         }
     }
 
-    open fun updateDirectoryList(updatedDirectoryList: ArrayList<VideoFolderContent>){
+    open fun updateDirectoryList(updatedDirectoryList: ArrayList<VideoFolderContent>) {
         val directoryListString = Gson().toJson(updatedDirectoryList)
 
         sharedPreferencesEditor.putString(Constants.SharedPrefItemNames.list.name, directoryListString).commit()
 
         directoryList.value = updatedDirectoryList
     }
-
 }

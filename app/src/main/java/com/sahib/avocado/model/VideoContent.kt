@@ -63,5 +63,4 @@ class VideoContent() : Parcelable {
             return arrayOfNulls(size)
         }
     }
-
 }

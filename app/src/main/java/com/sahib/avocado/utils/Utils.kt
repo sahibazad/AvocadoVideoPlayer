@@ -46,24 +46,22 @@ fun Context.hideKeyboard(view: View) {
     inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
 }
 
-fun Activity.checkFileExists(uri : Uri) : Boolean {
-    var res : Boolean
-    val cr = contentResolver;
-    val cur = cr.query(Uri.parse(uri.toString()), arrayOf(MediaStore.MediaColumns.DATA), null, null, null);
+fun Activity.checkFileExists(uri: Uri): Boolean {
+    var res: Boolean
+    val cr = contentResolver
+    val cur = cr.query(Uri.parse(uri.toString()), arrayOf(MediaStore.MediaColumns.DATA), null, null, null)
     if (cur != null) {
         if (cur.moveToFirst()) {
-            val filePath = cur.getString(0);
-            res = File(filePath).exists();
+            val filePath = cur.getString(0)
+            res = File(filePath).exists()
         } else {
-            res = false;
+            res = false
         }
-        cur.close();
+        cur.close()
     } else {
-        res = false;
+        res = false
     }
-    return res;
+    return res
 }
 
-class Utils {
-
-}
+class Utils

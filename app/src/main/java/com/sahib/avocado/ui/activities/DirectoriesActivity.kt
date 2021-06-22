@@ -17,21 +17,20 @@ import com.sahib.avocado.utils.VideoGet
 import com.sahib.avocado.utils.checkFileExists
 import com.sahib.avocado.viewmodel.DirectoryViewModel
 
-
 class DirectoriesActivity : AppCompatActivity() {
 
-    private lateinit var directoryViewModel : DirectoryViewModel
-    private lateinit var swipeRefreshLayout : SwipeRefreshLayout
-    private lateinit var recyclerView : RecyclerView
+    private lateinit var directoryViewModel: DirectoryViewModel
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: DirectoriesAdapter
     private lateinit var layoutNoItems: View
-    private var list : ArrayList<VideoFolderContent> = ArrayList()
+    private var list: ArrayList<VideoFolderContent> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_directories)
 
-        initView();
+        initView()
     }
 
     private fun initView() {
@@ -43,7 +42,7 @@ class DirectoriesActivity : AppCompatActivity() {
 
         initRecyclerView()
         initSwipeListener()
-        loadDefaultList();
+        loadDefaultList()
     }
 
     override fun onResume() {
@@ -63,7 +62,7 @@ class DirectoriesActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadDefaultList()  = runWithPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE) {
+    private fun loadDefaultList() = runWithPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE) {
         list.addAll(directoryViewModel.getDefaultDirectoryList())
         handleEmptyView()
         if (list.isNotEmpty()) {
@@ -101,21 +100,19 @@ class DirectoriesActivity : AppCompatActivity() {
         val videoFolders: ArrayList<VideoFolderContent> = ArrayList()
         videoFolders.addAll(VideoGet.getAllVideoFolders(this, VideoGet.externalContentUri))
 
-        for (videoFolder in videoFolders){
+        for (videoFolder in videoFolders) {
             loadVideos(videoFolder.bucketId, videoFolders)
         }
         list = videoFolders
     }
 
-    private fun loadVideos(bucketId : Int, videoDirectories: ArrayList<VideoFolderContent>) {
+    private fun loadVideos(bucketId: Int, videoDirectories: ArrayList<VideoFolderContent>) {
         val newList = VideoGet.getAllVideoContentByBucketId(this, bucketId)
-        newList.removeAll { !checkFileExists(Uri.parse(it.assetFileStringUri))}
+        newList.removeAll { !checkFileExists(Uri.parse(it.assetFileStringUri)) }
         for (directory in videoDirectories) {
             if (bucketId != 0 && directory.bucketId == bucketId) {
                 directory.videoFiles = newList
             }
         }
     }
-
-
 }

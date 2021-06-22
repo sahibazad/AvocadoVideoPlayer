@@ -1,0 +1,52 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <Blacklist></Blacklist>
+  <Whitelist>
+    <ID>EmptyFunctionBlock:SplashActivity.kt$SplashActivity.&lt;no name provided&gt;${ }</ID>
+    <ID>EmptyFunctionBlock:ViewpagerHeader.kt$ViewpagerHeader${ }</ID>
+    <ID>EnumNaming:Constants.kt$Constants.IntentItems$bucketId</ID>
+    <ID>EnumNaming:Constants.kt$Constants.IntentItems$folderName</ID>
+    <ID>EnumNaming:Constants.kt$Constants.IntentItems$position</ID>
+    <ID>EnumNaming:Constants.kt$Constants.IntentItems$videoDuration</ID>
+    <ID>EnumNaming:Constants.kt$Constants.IntentItems$videoList</ID>
+    <ID>EnumNaming:Constants.kt$Constants.IntentItems$videoName</ID>
+    <ID>EnumNaming:Constants.kt$Constants.IntentItems$videoUri</ID>
+    <ID>EnumNaming:Constants.kt$Constants.SharedPrefItemNames$brightness</ID>
+    <ID>EnumNaming:Constants.kt$Constants.SharedPrefItemNames$isOnboarded</ID>
+    <ID>EnumNaming:Constants.kt$Constants.SharedPrefItemNames$list</ID>
+    <ID>EnumNaming:Constants.kt$Constants.SharedPrefItemNames$position</ID>
+    <ID>EnumNaming:Constants.kt$Constants.SharedPrefItemNames$scale</ID>
+    <ID>EnumNaming:Constants.kt$Constants.SharedPrefNames$directories</ID>
+    <ID>EnumNaming:Constants.kt$Constants.SharedPrefNames$directoriesWithNoMedia</ID>
+    <ID>EnumNaming:Constants.kt$Constants.SharedPrefNames$general</ID>
+    <ID>EnumNaming:Constants.kt$Constants.SharedPrefNames$videoStatus</ID>
+    <ID>FunctionNaming:VideoContent.kt$VideoContent$fun VideoContent( videoId: Long, videoName: String?, path: String?, videoDuration: Long, videoSize: Long )</ID>
+    <ID>FunctionParameterNaming:VideoGet.kt$VideoGet$bucket_id: Int</ID>
+    <ID>MagicNumber:OnboardingActivity.kt$OnboardingActivity$3</ID>
+    <ID>MagicNumber:VideoPlayerActivity.kt$VideoPlayerActivity$0.1F</ID>
+    <ID>MagicNumber:VideoPlayerActivity.kt$VideoPlayerActivity$24</ID>
+    <ID>MagicNumber:ViewpagerHeader.kt$ViewpagerHeader$3</ID>
+    <ID>MaxLineLength:DirectoriesAdapter.kt$DirectoriesAdapter : Adapter</ID>
+    <ID>MaxLineLength:DirectoriesAdapter.kt$DirectoriesAdapter.ViewHolder$view.findViewById&lt;TextView&gt;(R.id.text_items).text = directory.videoFiles!!.size.toString() + " " + view.context.getString(R.string.items)</ID>
+    <ID>MaxLineLength:SplashActivity.kt$SplashActivity.&lt;no name provided&gt;$val intent: Intent = if (MyApplication.prefHelper.defaultPrefs().getBoolean(Constants.SharedPrefItemNames.isOnboarded.name, false)) { Intent(this@SplashActivity, DirectoriesActivity::class.java) } else { Intent(this@SplashActivity, OnboardingActivity::class.java) }</ID>
+    <ID>MaxLineLength:VideoGet.kt$VideoGet$ fun getAllVideoFolders(context: Context, contentLocation: Uri): ArrayList&lt;VideoFolderContent&gt;</ID>
+    <ID>MaxLineLength:VideoGet.kt$VideoGet$val folder: String = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME))</ID>
+    <ID>MaxLineLength:VideoGet.kt$VideoGet$videoContent.assetFileStringUri = (Uri.withAppendedPath(contentLocation, videoContent.videoId.toString())).toString()</ID>
+    <ID>MaxLineLength:VideoGet.kt$VideoGet$videoContent.assetFileStringUri = (Uri.withAppendedPath(externalContentUri, videoContent.videoId.toString())).toString()</ID>
+    <ID>MaxLineLength:VideoGet.kt$VideoGet$videoContent.videoDuration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION))</ID>
+    <ID>MaxLineLength:VideoGet.kt$VideoGet$videoContent.videoId = (cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID))).toLong()</ID>
+    <ID>MaxLineLength:VideoGet.kt$VideoGet$videoContent.videoName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME))</ID>
+    <ID>MaxLineLength:VideoPlayerVDKActivity.kt$VideoPlayerVDKActivity$playbackPosition = MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.videoStatus.name).getLong(Constants.SharedPrefItemNames.position.name, 0)</ID>
+    <ID>MaxLineLength:VideosAdapter.kt$VideosAdapter : Adapter</ID>
+    <ID>MaxLineLength:VideosAdapter.kt$VideosAdapter$ViewHolder : ViewHolderOnClickListener</ID>
+    <ID>MaximumLineLength:</ID>
+    <ID>NestedBlockDepth:VideoGet.kt$VideoGet$ fun getAllVideoFolders(context: Context, contentLocation: Uri): ArrayList&lt;VideoFolderContent&gt;</ID>
+    <ID>NoWildcardImports:</ID>
+    <ID>ReturnCount:LoginActivity.kt$LoginActivity$private fun validateInputs(): Boolean</ID>
+    <ID>ReturnCount:ViewPagerAdapter.kt$ViewPagerAdapter$override fun getItem(position: Int): Fragment</ID>
+    <ID>TooManyFunctions:VideoPlayerActivity.kt$VideoPlayerActivity : AppCompatActivityOnClickListener</ID>
+    <ID>VariableNaming:VideoPlayerActivity.kt$VideoPlayerActivity$private lateinit var exo_video_fill: ImageButton</ID>
+    <ID>VariableNaming:VideoPlayerActivity.kt$VideoPlayerActivity$private lateinit var exo_video_fit: ImageButton</ID>
+    <ID>WildcardImport:LoginActivity.kt$import android.widget.*</ID>
+  </Whitelist>
+</SmellBaseline>

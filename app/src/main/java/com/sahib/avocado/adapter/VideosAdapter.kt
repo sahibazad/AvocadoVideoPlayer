@@ -16,7 +16,7 @@ import com.sahib.avocado.ui.activities.VideoPlayerActivity
 import com.sahib.avocado.utils.inflate
 import com.sahib.avocado.utils.startActivityWithFade
 
-class VideosAdapter(private val context : Context, private val list : ArrayList<VideoContent>) : RecyclerView.Adapter<VideosAdapter.ViewHolder>()  {
+class VideosAdapter(private val context: Context, private val list: ArrayList<VideoContent>) : RecyclerView.Adapter<VideosAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideosAdapter.ViewHolder {
         val inflatedView = parent.inflate(R.layout.item_video, false)
@@ -30,9 +30,9 @@ class VideosAdapter(private val context : Context, private val list : ArrayList<
         holder.bindVideoFile(item, position, list)
     }
 
-    class ViewHolder(private val context : Context, private val view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+    class ViewHolder(private val context: Context, private val view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
 
-        private var videoFile : VideoContent? = null
+        private var videoFile: VideoContent? = null
         private var position: Int? = null
         private var list: ArrayList<VideoContent>? = null
 

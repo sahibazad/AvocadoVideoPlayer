@@ -28,7 +28,7 @@ object VideoGet {
     )
 
     /**Returns an Arraylist of [VideoContent] */
-    fun getAllVideoContent(context:Context, contentLocation: Uri?) : ArrayList<VideoContent> {
+    fun getAllVideoContent(context: Context, contentLocation: Uri?): ArrayList<VideoContent> {
         val allVideo: ArrayList<VideoContent> = ArrayList()
         context.contentResolver.query(
             externalContentUri,
@@ -128,5 +128,4 @@ object VideoGet {
 
         return allVideoFolders
     }
-
 }

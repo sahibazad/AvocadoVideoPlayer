@@ -12,7 +12,6 @@ import com.sahib.avocado.app.MyApplication
 import com.sahib.avocado.utils.startActivityWithFade
 import customcomponents.ViewpagerHeader
 
-
 class OnboardingActivity : AppCompatActivity() {
 
     lateinit var pager: ViewPager

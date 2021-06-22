@@ -20,25 +20,24 @@ import com.sahib.avocado.utils.checkFileExists
 import com.sahib.avocado.utils.finishWithFade
 import com.sahib.avocado.viewmodel.DirectoryViewModel
 
-
 class VideosActivity : AppCompatActivity() {
 
-    private lateinit var directoryViewModel : DirectoryViewModel
-    private lateinit var swipeRefreshLayout : SwipeRefreshLayout
-    private lateinit var recyclerView : RecyclerView
+    private lateinit var directoryViewModel: DirectoryViewModel
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var recyclerView: RecyclerView
     private lateinit var toolbar: Toolbar
     private lateinit var adapter: VideosAdapter
     private lateinit var layoutNoItems: View
     private var bucketId: Int = 0
     private var folderName: String? = ""
-    private var list : ArrayList<VideoContent> = ArrayList()
-    private var directoriesList : ArrayList<VideoFolderContent> = ArrayList()
+    private var list: ArrayList<VideoContent> = ArrayList()
+    private var directoriesList: ArrayList<VideoFolderContent> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_videos)
 
-        initView();
+        initView()
     }
 
     private fun initView() {
@@ -55,7 +54,7 @@ class VideosActivity : AppCompatActivity() {
         setupToolbar()
         initRecyclerView()
         initSwipeListener()
-        loadDefaultList();
+        loadDefaultList()
     }
 
     private fun setupToolbar() {
@@ -124,7 +123,7 @@ class VideosActivity : AppCompatActivity() {
         if (bucketId != 0) {
             val videoDirectories = directoryViewModel.getDefaultDirectoryList()
             val newList = VideoGet.getAllVideoContentByBucketId(this, bucketId)
-            newList.removeAll { !checkFileExists(Uri.parse(it.assetFileStringUri))}
+            newList.removeAll { !checkFileExists(Uri.parse(it.assetFileStringUri)) }
             for (directory in videoDirectories) {
                 if (bucketId != 0 && directory.bucketId == bucketId) {
                     directory.videoFiles = newList
@@ -145,5 +144,4 @@ class VideosActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-
 }

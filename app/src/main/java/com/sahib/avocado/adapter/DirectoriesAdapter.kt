@@ -13,7 +13,7 @@ import com.sahib.avocado.ui.activities.VideosActivity
 import com.sahib.avocado.utils.inflate
 import com.sahib.avocado.utils.startActivityWithFade
 
-class DirectoriesAdapter(private val context : Context, private val list : ArrayList<VideoFolderContent>) : RecyclerView.Adapter<DirectoriesAdapter.ViewHolder>()  {
+class DirectoriesAdapter(private val context: Context, private val list: ArrayList<VideoFolderContent>) : RecyclerView.Adapter<DirectoriesAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DirectoriesAdapter.ViewHolder {
         val inflatedView = parent.inflate(R.layout.item_directory, false)
@@ -29,7 +29,7 @@ class DirectoriesAdapter(private val context : Context, private val list : Array
 
     class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
 
-        private var directory : VideoFolderContent? = null
+        private var directory: VideoFolderContent? = null
 
         init {
             view.setOnClickListener(this)

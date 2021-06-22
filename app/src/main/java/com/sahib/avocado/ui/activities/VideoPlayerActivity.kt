@@ -85,7 +85,7 @@ class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun observerProgress() {
-        //RxKotlin to observe progress update
+        // RxKotlin to observe progress update
         playbackDisposable = playbackProgressObservable?.subscribeOn(Schedulers.io())
             ?.observeOn(AndroidSchedulers.mainThread())?.subscribe {
             if (simpleExoPlayer!!.currentWindowIndex == position) {
@@ -144,18 +144,18 @@ class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun setVideoDiscontinuityListener() {
-        //To change current seek position in case the track is changed
+        // To change current seek position in case the track is changed
         simpleExoPlayer!!.addListener(object : EventListener {
             override fun onPositionDiscontinuity(reason: Int) {
                 val latestWindowIndex: Int = simpleExoPlayer!!.currentWindowIndex
                 if (latestWindowIndex != position) {
-                    //Save the old tracks playback position
+                    // Save the old tracks playback position
                     MyApplication.prefHelper.customPrefs(Constants.SharedPrefNames.videoStatus.name)
                         .edit {
                             putLong(currentVideo?.assetFileStringUri, playbackPosition).commit()
                         }
 
-                    //Load the new tracks playback position
+                    // Load the new tracks playback position
                     position = latestWindowIndex
                     currentVideo = list?.get(position!!)
                     swipeGestureDetection.setNewVideoDuration(currentVideo!!.videoDuration)
@@ -245,7 +245,7 @@ class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
             SwipperGestureDetection.OnTouchListener { v, event ->
                 val action = event!!.actionMasked
                 if (action == MotionEvent.ACTION_DOWN) {
-                    //TODO show cast button for some time
+                    // TODO show cast button for some time
                 }
             })
         playerView.setOnTouchListener(swipeGestureDetection)
@@ -301,5 +301,4 @@ class VideoPlayerActivity : AppCompatActivity(), View.OnClickListener {
             putInt(Constants.SharedPrefItemNames.scale.name, currentScale).commit()
         }
     }
-
 }

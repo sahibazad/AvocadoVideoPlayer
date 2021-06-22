@@ -18,8 +18,8 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        initViews();
-        initClicks();
+        initViews()
+        initClicks()
     }
 
     private fun initViews() {
@@ -35,7 +35,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        when(v?.id) {
+        when (v?.id) {
             R.id.button_login -> {
                 if (validateInputs()) {
                     successfulLogin()
@@ -64,6 +64,6 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
     private fun successfulLogin() {
         hideKeyboard()
         Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
-        //TODO save values to shared pref and do and API call to move to the next screen
+        // TODO save values to shared pref and do and API call to move to the next screen
     }
 }

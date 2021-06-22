@@ -18,20 +18,18 @@ class OnboardingFragment3 : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        rootView =  inflater!!.inflate(R.layout.fragment_onboarding3, container, false)
+        rootView = inflater!!.inflate(R.layout.fragment_onboarding3, container, false)
         initView()
         return rootView
     }
 
     private fun initView() {
-        rootView.findViewById<Button>(R.id.button_done).setOnClickListener(object : View.OnClickListener{
+        rootView.findViewById<Button>(R.id.button_done).setOnClickListener(object : View.OnClickListener {
 
             override fun onClick(v: View?) {
                 val parentActivity = activity as? OnboardingActivity
                 parentActivity?.finishOnboarding()
             }
-
         })
     }
-
 }
